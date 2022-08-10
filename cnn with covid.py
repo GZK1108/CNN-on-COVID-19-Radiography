@@ -13,7 +13,7 @@ train_root = "C:/Users/11453/PycharmProjects/riskassessment/data/COVID-19 (train
 test_root = "C:/Users/11453/PycharmProjects/riskassessment/data/COVID-19 (train test split)/test"
 
 # batch_size = 1, accuracy is still not the same
-batch_size = 32
+batch_size = 256
 
 Generator = ImageDataGenerator()
 train_data = Generator.flow_from_directory(train_root, (70, 70), batch_size=batch_size)
@@ -50,11 +50,11 @@ model.add(Dense(num_classes, activation="softmax"))
 model.summary()
 
 model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adam(), metrics=['accuracy'])
-model.fit(train_data, batch_size=batch_size, epochs=12)
+model.fit(train_data, batch_size=batch_size, epochs=100)
 
 # score = model.evaluate(train_data)
 # print(score)
-score = model.evaluate(test_data)
+score = model.evaluate(train_data)
 print(score)
 """
 pred = model.predict(test_data)
