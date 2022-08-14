@@ -167,11 +167,11 @@ imageEDA['min'] = min_val
 
 imageEDA['subt_mean'] = imageEDA['mean'].mean() - imageEDA['mean']
 
-ax1 = sns.displot(data = imageEDA, x = 'mean', kind="kde", hue = 'corona_result');
-plt.title('Images Colour Mean Value Distribution by Class\n', fontsize = 12);  #图像颜色平均值按类别分布
+ax1 = sns.displot(data = imageEDA, x = 'mean', kind="kde", hue = 'corona_result')
+plt.title('Images Colour Mean Value Distribution by Class\n', fontsize = 12)  #图像颜色平均值按类别分布
 
-ax2 = sns.displot(data = imageEDA, x = 'max', kind="kde", hue = 'corona_result');
-plt.title('\nImages Colour Max Value Distribution by Class\n', fontsize = 12);  #图像颜色最大值按类别分布
+ax2 = sns.displot(data = imageEDA, x = 'max', kind="kde", hue = 'corona_result')
+plt.title('\nImages Colour Max Value Distribution by Class\n', fontsize = 12) #图像颜色最大值按类别分布
 
-ax3 = sns.displot(data = imageEDA, x = 'min', kind="kde", hue = 'corona_result');
-plt.title('\nImages Colour Min Value Distribution by Class\n', fontsize = 12);  #图像颜色最小值按类别分布
+ax3 = sns.displot(data = imageEDA, x = 'min', kind="kde", hue = 'corona_result')
+plt.title('\nImages Colour Min Value Distribution by Class\n', fontsize = 12)  #图像颜色最小值按类别分布
