@@ -1,10 +1,11 @@
 import warnings
 
-from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
-
-
 warnings.simplefilter(action='ignore', category=FutureWarning)
-from keras.models import load_model
+
+from keras.applications.resnet import ResNet50
+import tensorflow as tf
+from keras.layers import Flatten, Dense, Dropout
+from keras.models import Sequential
 
 # Data Reading
 
@@ -30,9 +31,7 @@ import seaborn as sns
 
 from sklearn.model_selection import train_test_split
 
-
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-
 
 # Grad-CAM
 
@@ -51,28 +50,10 @@ data['path'] = path + '/' + data['image_file']
 data['corona_result'] = data['corona_result'].map({'Normal': 'Negative', 'COVID': 'Positive'})
 samples = 13808
 
-data.head()
-
 df = pd.DataFrame()
 df['corona_result'] = ['Positive', 'Negative']
 df['Count'] = [len(data[data['corona_result'] == 'Positive']), len(data[data['corona_result'] == 'Negative'])]
 df = df.sort_values(by=['Count'], ascending=False)
-
-
-
-all_covid = []
-all_normal = []
-
-all_normal.extend(glob(os.path.join(path, "Normal/*.png")))
-all_covid.extend(glob(os.path.join(path, "COVID/*.png")))
-
-random.shuffle(all_normal)
-random.shuffle(all_covid)
-
-
-
-
-
 
 all_data = []
 
@@ -100,50 +81,42 @@ x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.
 
 print(x_train.shape, x_test.shape, x_val.shape, y_train.shape, y_test.shape, y_val.shape)
 
+# 训练模型
+batch_size = 32
+epochs = 30
 
-model = load_model("model.h5")
+restnet = ResNet50(include_top=False, weights='imagenet', input_shape=(70, 70, 3), pooling='avg')
+restnet.summary()
+
+model = Sequential()
+model.add(restnet)
+model.add(Flatten())
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.05))
+model.add(Dense(4, activation='softmax'))
+model.compile(optimizer='adam',
+              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+              metrics=['accuracy'])
+hist = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
+
 score = model.evaluate(x_test, y_test)
 print(score)
+# print(hist.history['loss'])
+model.save('resnet.h5')
 
-pred = model.predict(x_test)
-pred = np.argmax(pred, axis=1)
-cm = confusion_matrix(y_test, pred)
-print(cm)
-
-plt.figure(figsize=(16, 9), dpi=80)
-ax = sns.heatmap(data=cm, annot=True, fmt='d', annot_kws={"fontsize":20}, cbar=False)
-ax.set_title('Confusion matrix')  # 图标题
-ax.set_xlabel('Predict',fontsize=34)  # x轴标题
-ax.set_ylabel('True',fontsize=34)
-# plt.xticks(fontsize=50)
-# plt.yticks(fontsize=50)
-
-
-print("准确度为：")
-print(accuracy_score(y_test, pred, normalize=True, sample_weight=None))
-print("精确度为:")
-print(precision_score(y_test, pred, average='binary'))  # 测试集精确率
-print("召回率为:")
-print(recall_score(y_test, pred, average="binary"))
-
-"""# 测试集准确率
+# 创建一个绘图窗口,画图
+x = range(1, epochs+1)
 plt.figure()
-accuracy = accuracy_score(y_test, pred, normalize=True)
-plt.plot(accuracy, label='testing accuracy')
-plt.title('acc')
-plt.xlabel('epochs')
-plt.ylabel('accuracy')
-# plt.savefig("./result/每一轮准确度图片.png")
-plt.legend()
-plt.show()
+acc = hist.history['accuracy']
+loss = hist.history['loss']
 
-plt.plot(loss, label='testing loss')
-plt.title('loss')
-plt.xlabel('epochs')
-plt.ylabel('loss')
-plt.savefig("./result/每一轮损失值图片.png")
+plt.plot(x, acc, 'b', label='Training acc')
+plt.plot(x, loss, 'y', label='Training loss')
+plt.title('Training accuracy and loss')
 plt.legend()
-plt.show()"""
+
+plt.savefig("training.png")
+plt.show()
 
 
 
