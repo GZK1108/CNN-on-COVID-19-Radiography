@@ -1,6 +1,6 @@
 import warnings
 
-from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score
+from sklearn.metrics import confusion_matrix, accuracy_score, precision_score, recall_score, f1_score
 
 
 warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -18,11 +18,11 @@ import numpy as np
 import pandas as pd
 import cv2
 import random
-import albumentations as A
+
 
 # Data Analysis
 
-import plotly.express as px
+
 import matplotlib.pyplot as plt
 import seaborn as sns
 
@@ -49,29 +49,12 @@ data = pd.DataFrame(data, columns=['image_file', 'corona_result'])
 
 data['path'] = path + '/' + data['image_file']
 data['corona_result'] = data['corona_result'].map({'Normal': 'Negative', 'COVID': 'Positive'})
-samples = 13808
 
-data.head()
 
 df = pd.DataFrame()
 df['corona_result'] = ['Positive', 'Negative']
 df['Count'] = [len(data[data['corona_result'] == 'Positive']), len(data[data['corona_result'] == 'Negative'])]
 df = df.sort_values(by=['Count'], ascending=False)
-
-
-
-all_covid = []
-all_normal = []
-
-all_normal.extend(glob(os.path.join(path, "Normal/*.png")))
-all_covid.extend(glob(os.path.join(path, "COVID/*.png")))
-
-random.shuffle(all_normal)
-random.shuffle(all_covid)
-
-
-
-
 
 
 all_data = []
@@ -101,31 +84,31 @@ x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.
 print(x_train.shape, x_test.shape, x_val.shape, y_train.shape, y_test.shape, y_val.shape)
 
 
-model = load_model("model.h5")
-score = model.evaluate(x_test, y_test)
-print(score)
+model = load_model("C:/Users/11453/PycharmProjects/riskassessment/resnetCOVID19.h5")
+# score = model.evaluate(x_test, y_test)
 
 pred = model.predict(x_test)
 pred = np.argmax(pred, axis=1)
 cm = confusion_matrix(y_test, pred)
-print(cm)
 
-plt.figure(figsize=(16, 9), dpi=80)
-ax = sns.heatmap(data=cm, annot=True, fmt='d', annot_kws={"fontsize":20}, cbar=False)
-ax.set_title('Confusion matrix')  # 图标题
-ax.set_xlabel('Predict',fontsize=34)  # x轴标题
-ax.set_ylabel('True',fontsize=34)
+
+plt.figure(figsize=(12, 9), dpi=60)
+x_ticks =['Negitive','Positive']
+y_ticks =['Negitive','Positive']
+ax = sns.heatmap(data=cm, xticklabels=x_ticks,yticklabels=y_ticks,annot=True, fmt='d', annot_kws={"fontsize":20}, cmap='Blues')
+ax.set_title('Confusion matrix',fontsize=20)  # 图标题
+ax.set_xlabel('Predict',fontsize=15)  # x轴标题
+ax.set_ylabel('True',fontsize=15)
 # plt.xticks(fontsize=50)
 # plt.yticks(fontsize=50)
 
+# plt.savefig('confusion matrix.png')
 
-print("准确度为：")
-print(accuracy_score(y_test, pred, normalize=True, sample_weight=None))
-print("精确度为:")
-print(precision_score(y_test, pred, average='binary'))  # 测试集精确率
-print("召回率为:")
-print(recall_score(y_test, pred, average="binary"))
-
+print("accuracy:",round(accuracy_score(y_test, pred, normalize=True, sample_weight=None),3))
+print("precision:",round(precision_score(y_test, pred, average='binary'),3))  # 测试集精确率
+print("recall:",round(recall_score(y_test, pred, average="binary"),3))
+print("F1 score:",round(f1_score(y_test, pred, average="binary"),3))
+plt.show()
 """# 测试集准确率
 plt.figure()
 accuracy = accuracy_score(y_test, pred, normalize=True)

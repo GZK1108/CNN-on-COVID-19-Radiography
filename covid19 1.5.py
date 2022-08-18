@@ -18,14 +18,13 @@ from PIL import Image
 import numpy as np
 import pandas as pd
 import cv2
-import random
-import albumentations as A
+
 
 # Data Analysis
 
-import plotly.express as px
+
 import matplotlib.pyplot as plt
-import seaborn as sns
+
 
 # Data Modeling & Model Evaluation
 
@@ -48,7 +47,7 @@ data = pd.DataFrame(data, columns=['image_file', 'corona_result'])
 
 data['path'] = path + '/' + data['image_file']
 data['corona_result'] = data['corona_result'].map({'Normal': 'Negative', 'COVID': 'Positive'})
-samples = 13808
+
 
 df = pd.DataFrame()
 df['corona_result'] = ['Positive', 'Negative']
