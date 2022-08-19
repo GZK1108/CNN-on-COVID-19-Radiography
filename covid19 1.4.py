@@ -81,18 +81,19 @@ y = np.array(y)
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=42)
 # x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.1, random_state=42)
 
-# print(x_train.shape, x_test.shape, x_val.shape, y_train.shape, y_test.shape, y_val.shape)
+print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
 
 
 model = load_model("C:/Users/11453/PycharmProjects/riskassessment/resnetCOVID19.h5")
 # score = model.evaluate(x_test, y_test)
+score = model.evaluate(x_train, y_train)
 
 pred = model.predict(x_test)
 pred = np.argmax(pred, axis=1)
 cm = confusion_matrix(y_test, pred)
 
 
-plt.figure(figsize=(12, 9), dpi=80)
+"""plt.figure(figsize=(12, 9), dpi=80)
 x_ticks =['Negative','Positive']
 y_ticks =['Negative','Positive']
 ax = sns.heatmap(data=cm, xticklabels=x_ticks, yticklabels=y_ticks,annot=True, fmt='d', annot_kws={"fontsize":20}, cmap='Blues')
@@ -107,8 +108,20 @@ plt.savefig('confusion matrix.png')
 print("accuracy:",round(accuracy_score(y_test, pred, normalize=True, sample_weight=None),3))
 print("precision:",round(precision_score(y_test, pred, average='binary'),3))  # 测试集精确率
 print("recall:",round(recall_score(y_test, pred, average="binary"),3))
-print("F1 score:",round(f1_score(y_test, pred, average="binary"),3))
+print("F1 score:",round(f1_score(y_test, pred, average="binary"),3))"""
 plt.show()
+
+# 训练集
+pred1 = model.predict(x_train)
+pred1 = np.argmax(pred1, axis=1)
+
+print("accuracy:",round(accuracy_score(y_train, pred1, normalize=True, sample_weight=None),3))
+print("precision:",round(precision_score(y_train, pred1, average='binary'),3))  # 测试集精确率
+print("recall:",round(recall_score(y_train, pred1, average="binary"),3))
+print("F1 score:",round(f1_score(y_train, pred1, average="binary"),3))
+
+
+
 """# 测试集准确率
 plt.figure()
 accuracy = accuracy_score(y_test, pred, normalize=True)
