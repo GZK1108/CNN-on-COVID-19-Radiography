@@ -84,62 +84,42 @@ x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_
 print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
 
 
-model = load_model("C:/Users/11453/PycharmProjects/riskassessment/resnetCOVID19.h5")
-# score = model.evaluate(x_test, y_test)
-score = model.evaluate(x_train, y_train)
+model = load_model("C:/Users/11453/PycharmProjects/riskassessment/nasnet.h5")
+score = model.evaluate(x_test, y_test)
+# score = model.evaluate(x_train, y_train)
 
 pred = model.predict(x_test)
 pred = np.argmax(pred, axis=1)
 cm = confusion_matrix(y_test, pred)
 
 
-"""plt.figure(figsize=(12, 9), dpi=80)
+plt.figure(figsize=(12, 9), dpi=80)
 x_ticks =['Negative','Positive']
 y_ticks =['Negative','Positive']
 ax = sns.heatmap(data=cm, xticklabels=x_ticks, yticklabels=y_ticks,annot=True, fmt='d', annot_kws={"fontsize":20}, cmap='Blues')
-ax.set_title('Confusion matrix',fontsize=20)  # 图标题
+ax.set_title('NASNet',fontsize=20)  # 图标题
 ax.set_xlabel('Predict',fontsize=15)  # x轴标题
 ax.set_ylabel('True',fontsize=15)
 plt.xticks(fontsize=15)
 plt.yticks(fontsize=15)
 
-plt.savefig('confusion matrix.png')
+plt.savefig('confusion matrix nasnet.png')
 
 print("accuracy:",round(accuracy_score(y_test, pred, normalize=True, sample_weight=None),3))
 print("precision:",round(precision_score(y_test, pred, average='binary'),3))  # 测试集精确率
 print("recall:",round(recall_score(y_test, pred, average="binary"),3))
-print("F1 score:",round(f1_score(y_test, pred, average="binary"),3))"""
+print("F1 score:",round(f1_score(y_test, pred, average="binary"),3))
 plt.show()
 
-# 训练集
+"""# 训练集
 pred1 = model.predict(x_train)
 pred1 = np.argmax(pred1, axis=1)
 
 print("accuracy:",round(accuracy_score(y_train, pred1, normalize=True, sample_weight=None),3))
 print("precision:",round(precision_score(y_train, pred1, average='binary'),3))  # 测试集精确率
 print("recall:",round(recall_score(y_train, pred1, average="binary"),3))
-print("F1 score:",round(f1_score(y_train, pred1, average="binary"),3))
+print("F1 score:",round(f1_score(y_train, pred1, average="binary"),3))"""
 
-
-
-"""# 测试集准确率
-plt.figure()
-accuracy = accuracy_score(y_test, pred, normalize=True)
-plt.plot(accuracy, label='testing accuracy')
-plt.title('acc')
-plt.xlabel('epochs')
-plt.ylabel('accuracy')
-# plt.savefig("./result/每一轮准确度图片.png")
-plt.legend()
-plt.show()
-
-plt.plot(loss, label='testing loss')
-plt.title('loss')
-plt.xlabel('epochs')
-plt.ylabel('loss')
-plt.savefig("./result/每一轮损失值图片.png")
-plt.legend()
-plt.show()"""
 
 
 

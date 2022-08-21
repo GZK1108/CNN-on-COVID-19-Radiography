@@ -59,7 +59,7 @@ all_data = []
 
 for i in range(len(data)):
     image = cv2.imread(data['path'][i])
-    image = cv2.resize(image, (75, 75)) / 255.0
+    image = cv2.resize(image, (70, 70)) / 255.0
     label = 1 if data['corona_result'][i] == "Positive" else 0
     all_data.append([image, label])
 
@@ -81,29 +81,33 @@ print(x_train.shape, x_test.shape, x_val.shape, y_train.shape, y_test.shape, y_v
 
 # 训练模型
 batch_size = 32
-epochs = 1
+epochs = 30
 
-inc = tf.keras.applications.inception_v3.InceptionV3(
-    include_top=False,
-    weights='imagenet',
-    input_shape=(75, 75, 3),
-    classifier_activation='sigmoid',
-    pooling='avg'
+pretrained_base = tf.keras.applications.EfficientNetB7(
+    include_top = False,
+    input_shape = (70, 70, 3),
+    weights = 'imagenet'
 )
-for layer in inc.layers:
-    layer.trainable = False
+# Freeze the pretrained base
+pretrained_base.trainable = False
 
-x = Flatten()(inc.output)
-prediction = Dense(units=1, activation='sigmoid')(x)
-
-model = Model(inc.input, prediction)
+model = tf.keras.Sequential([
+    pretrained_base,
+    tf.keras.layers.GlobalAveragePooling2D(),
+    tf.keras.layers.Dense(64, activation='relu'), # This is our head
+    tf.keras.layers.Dropout(0.05),
+    tf.keras.layers.Dense(4, activation='softmax')
+])
+model.summary()
 
 model.compile(
-    optimizer='adam',
-    loss='binary_crossentropy',
-    metrics=['accuracy']
+    optimizer = tf.keras.optimizers.Adam(0.001),
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
+    metrics='accuracy'
 )
-hist = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
+
+
+hist = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs,workers = 8, verbose = 1)
 
 score = model.evaluate(x_test, y_test)
 print(score)
@@ -120,10 +124,10 @@ loss = hist.history['loss']
 
 plt.plot(x, acc, 'b', label='Training acc')
 plt.plot(x, loss, 'y', label='Training loss')
-plt.title('ResNet50')
+plt.title('EfficientNet')
 plt.xlabel('Epochs')
 plt.ylabel('Acc and Loss')
 plt.legend()
 
-plt.savefig("inception.png")
+plt.savefig("incepti.png")
 plt.show()

@@ -81,27 +81,44 @@ print(x_train.shape, x_test.shape, x_val.shape, y_train.shape, y_test.shape, y_v
 
 # 训练模型
 batch_size = 32
-epochs = 1
+epochs = 100
 
-inc = tf.keras.applications.inception_v3.InceptionV3(
-    include_top=False,
-    weights='imagenet',
-    input_shape=(75, 75, 3),
-    classifier_activation='sigmoid',
-    pooling='avg'
+engine = tf.keras.applications.InceptionResNetV2(
+    # Freezing the weights of the top layer in the InceptionResNetV2 pre-traiined model
+    include_top = False,
+
+    # Use Imagenet weights
+    weights = 'imagenet',
+
+    # Define input shape to 224x224x3
+    input_shape = (70, 70, 3),
+
+    # Set classifier activation to sigmoid
+    classifier_activation = 'sigmoid'
 )
-for layer in inc.layers:
-    layer.trainable = False
 
-x = Flatten()(inc.output)
-prediction = Dense(units=1, activation='sigmoid')(x)
+# Define the Keras model outputs
 
-model = Model(inc.input, prediction)
+x = tf.keras.layers.GlobalAveragePooling2D(name = 'avg_pool')(engine.output)
+out = tf.keras.layers.Dense(1, activation = 'sigmoid', name = 'dense_output')(x)
+
+
+# Build the Keras model
+
+model = tf.keras.models.Model(inputs = engine.input, outputs = out)
+
+
 
 model.compile(
+    # Set optimizer to Adam(0.001)
+    # optimizer = tf.keras.optimizers.Adam(0.001),
     optimizer='adam',
-    loss='binary_crossentropy',
-    metrics=['accuracy']
+
+    # Set loss to binary crossentropy
+    loss = 'binary_crossentropy',
+
+    # Set metrics to accuracy
+    metrics = ['accuracy']
 )
 hist = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
 

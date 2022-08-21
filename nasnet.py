@@ -4,12 +4,11 @@ warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 import tensorflow as tf
-from keras.models import Sequential
-
-
+from keras.layers import Input, Conv2D, MaxPooling2D,AveragePooling2D
+from keras.optimizers import Adam,Adamax
 from keras.layers import Input, Lambda, Dense, Flatten , Dropout , MaxPool2D
 from keras.models import Model , Sequential
-
+from keras.applications.nasnet import NASNetMobile
 
 # Data Reading
 
@@ -59,7 +58,7 @@ all_data = []
 
 for i in range(len(data)):
     image = cv2.imread(data['path'][i])
-    image = cv2.resize(image, (75, 75)) / 255.0
+    image = cv2.resize(image, (70, 70)) / 255.0
     label = 1 if data['corona_result'][i] == "Positive" else 0
     all_data.append([image, label])
 
@@ -81,28 +80,26 @@ print(x_train.shape, x_test.shape, x_val.shape, y_train.shape, y_test.shape, y_v
 
 # 训练模型
 batch_size = 32
-epochs = 1
+epochs = 30
 
-inc = tf.keras.applications.inception_v3.InceptionV3(
-    include_top=False,
-    weights='imagenet',
-    input_shape=(75, 75, 3),
-    classifier_activation='sigmoid',
-    pooling='avg'
-)
-for layer in inc.layers:
-    layer.trainable = False
+base_model = NASNetMobile(weights = 'imagenet', include_top=False, input_tensor=Input(shape=(70,70,3)))
+headmodel = base_model.output
+headmodel = AveragePooling2D(pool_size =(3, 3))(headmodel)
+headmodel = Flatten(name ='Flatten')(headmodel)
+headmodel = Dense(64, activation = 'relu')(headmodel)
+headmodel = Dropout(0.5)(headmodel)
+headmodel = Dense(2, activation = 'softmax')(headmodel)
 
-x = Flatten()(inc.output)
-prediction = Dense(units=1, activation='sigmoid')(x)
+model = Model(inputs = base_model.input, outputs = headmodel)
 
-model = Model(inc.input, prediction)
+for layers in base_model.layers:
+    layers.trainable = False
 
-model.compile(
-    optimizer='adam',
-    loss='binary_crossentropy',
-    metrics=['accuracy']
-)
+
+# opt = Adam(lr = INIT_LR, decay = INIT_LR/EPOCHS)
+model.compile(loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True), optimizer = 'adam', metrics = ['accuracy'])
+
+
 hist = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
 
 score = model.evaluate(x_test, y_test)
@@ -110,7 +107,7 @@ print(score)
 # print(hist.history['loss'])
 
 
-# model.save('inceptionv3.h5')
+model.save('nasnet.h5')
 
 # 创建一个绘图窗口,画图
 x = range(1, epochs + 1)
@@ -120,10 +117,10 @@ loss = hist.history['loss']
 
 plt.plot(x, acc, 'b', label='Training acc')
 plt.plot(x, loss, 'y', label='Training loss')
-plt.title('ResNet50')
+plt.title('NasNet')
 plt.xlabel('Epochs')
 plt.ylabel('Acc and Loss')
 plt.legend()
 
-plt.savefig("inception.png")
+plt.savefig("nasnet.png")
 plt.show()
