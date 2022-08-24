@@ -80,7 +80,7 @@ print(x_train.shape, x_test.shape, x_val.shape, y_train.shape, y_test.shape, y_v
 
 # 训练模型
 batch_size = 32
-epochs = 30
+epochs = 50
 
 base_model = NASNetMobile(weights = 'imagenet', include_top=False, input_tensor=Input(shape=(70,70,3)))
 headmodel = base_model.output
