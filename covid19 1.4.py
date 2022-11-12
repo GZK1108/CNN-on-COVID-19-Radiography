@@ -84,7 +84,7 @@ x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_
 print(x_train.shape, x_test.shape, y_train.shape, y_test.shape)
 
 
-model = load_model("C:/Users/11453/PycharmProjects/riskassessment/nasnet1.h5")
+model = load_model("C:/Users/11453/PycharmProjects/riskassessment/resnetbefore.h5")
 score = model.evaluate(x_test, y_test)
 # score = model.evaluate(x_train, y_train)
 
@@ -97,7 +97,7 @@ plt.figure(figsize=(12, 9), dpi=80)
 x_ticks =['Negative','Positive']
 y_ticks =['Negative','Positive']
 ax = sns.heatmap(data=cm, xticklabels=x_ticks, yticklabels=y_ticks,annot=True, fmt='d', annot_kws={"fontsize":20}, cmap='Blues')
-ax.set_title('NASNer',fontsize=20)  # 图标题
+ax.set_title('resnet',fontsize=20)  # 图标题
 ax.set_xlabel('Predict',fontsize=15)  # x轴标题
 ax.set_ylabel('True',fontsize=15)
 plt.xticks(fontsize=15)

@@ -92,7 +92,7 @@ model.add(restnet)
 model.add(Flatten())
 model.add(Dense(64, activation='relu'))
 model.add(Dropout(0.05))
-model.add(Dense(4, activation='softmax'))
+model.add(Dense(4, activation='sigmoid'))
 model.compile(optimizer='adam',
               loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
               metrics=['accuracy'])
@@ -101,7 +101,7 @@ hist = model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs)
 score = model.evaluate(x_test, y_test)
 print(score)
 # print(hist.history['loss'])
-model.save('resnet.h5')
+# model.save('resnet.h5')
 
 # 创建一个绘图窗口,画图
 x = range(1, epochs+1)
